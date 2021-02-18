@@ -21,7 +21,9 @@ class StartNode(seamm.Node):
         Keyword arguments:
         '''
         logger.debug('Constructing start node {}'.format(self))
-        super().__init__(flowchart=flowchart, title='Start', uid=1)
+        super().__init__(flowchart=flowchart, title='Start')
+
+        self._uuid = 1
 
     @property
     def version(self):

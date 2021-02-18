@@ -43,14 +43,13 @@ class Node(collections.abc.Hashable):
         extension=None,
         module=None,
         logger=logger,
-        uid=uuid.uuid4().int
     ):
         """Initialize a node
 
         Keyword arguments:
         """
 
-        self._uuid = uid
+        self._uuid = uuid.uuid4().int
         self.logger = logger
         self.parent = None
         self.flowchart = flowchart
