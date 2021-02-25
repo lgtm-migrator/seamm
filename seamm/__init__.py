@@ -36,6 +36,8 @@ from seamm.builtins import JoinStep  # noqa: F401
 from seamm.tk_job_handler import TkJobHandler  # noqa: F401
 from seamm.run_flowchart import run as run_flowchart  # noqa: F401
 from seamm.atom_typing import AtomTyperFactory
+from seamm.energy_expression import EnergyExpression 
+from seamm.forcefield import Forcefield 
 
 wrap_text = textwrap.TextWrapper(width=120)
 wrap_stdout = textwrap.TextWrapper(width=120)
