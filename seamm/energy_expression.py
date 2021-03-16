@@ -30,6 +30,7 @@ class EnergyExpression:
         self.system = system
 
         self.atomtyping_engine = atomtyping_engine 
+        self.current_forcefield = self.atomtyping_engine.name
 
         if configuration is None:
             configuration = system.current_configuration
@@ -117,25 +118,28 @@ class EnergyExpression:
         key = f'atom_types_{self.atomtyping_engine.name}'
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
         types.extend(sys_atoms.get_column(key))
-        import pdb
-        pdb.set_trace()
         # bonds
         #bonds = self.topology['bonds'] = [
         #    (to_index[row['i']], to_index[row['j']])
         #    for row in sys_bonds.bonds(configuration=configuration)
         #]
 
-        bonds = zip(sys_bonds.get_as_dict('i'), sys_bonds.get_as_dict('j'))
+        bonds = zip(sys_bonds.get_as_dict()['i'], sys_bonds.get_as_dict()['j'])
 
         # atoms bonded to each atom i
-        self.topology['bonds_from_atom'] = system.bonded_neighbors(
-            configuration=configuration, as_indices=True, first_index=1
-        )
+        self.topology['bonds_from_atom'] = system.system.configuration.bonded_neighbors()
         bonds_from_atom = self.topology['bonds_from_atom']
 
         # angles
         angles = self.topology['angles'] = []
-        for j in range(1, n_atoms + 1):
+
+       # for j in range(1, n_atoms + 1):
+       #     for i in bonds_from_atom[j]:
+       #         for k in bonds_from_atom[j]:
+       #             if i < k:
+       #                 angles.append((i, j, k))
+
+        for j in bonds_from_atom.keys():
             for i in bonds_from_atom[j]:
                 for k in bonds_from_atom[j]:
                     if i < k:
@@ -154,12 +158,13 @@ class EnergyExpression:
 
         # Out-of-planes
         oops = self.topology['oops'] = []
-        for m in range(1, n_atoms + 1):
+        for m in bonds_from_atom.keys():
             if len(bonds_from_atom[m]) == 3:
                 i, j, k = bonds_from_atom[m]
                 oops.append((i, m, j, k))
+
         if style == 'LAMMPS':
-            for m in range(1, n_atoms + 1):
+            for m in bonds_from_atom.keys():
                 if len(bonds_from_atom[m]) == 4:
                     i, j, k, l = bonds_from_atom[m]  # noqa: E741
                     oops.append((i, m, j, k))
@@ -169,12 +174,18 @@ class EnergyExpression:
 
     def eex_atoms(self, eex, system, configuration=None):
         """List the atoms into the energy expression"""
-        atoms = system['atom']
-        coordinates = atoms.coordinates(
-            configuration=configuration, fractionals=False
-        )
-        key = f'atom_types_{self.current_forcefield}'
-        types = atoms.get_column(key, configuration=configuration)
+
+        #atoms = system['atom']
+        #coordinates = atoms.coordinates(
+        #    configuration=configuration, fractionals=False
+        #)
+        import pdb
+        pdb.set_trace()
+        atoms = system.systems[0].configuration.atoms
+        coordinates = atoms.coordinates
+
+        key = f'atomtypes_{self.current_forcefield}'
+        types = atoms.get_column(key)
 
         result = eex['atoms'] = []
         atom_types = eex['atom types'] = []
@@ -543,3 +554,10 @@ class EnergyExpression:
             result.append((i, j, k, l, index))
         eex['n_angle-angle'] = len(result)
         eex['n_angle-angle_types'] = len(parameters)
+
+    def mass(self, i):
+        """Return the atomic mass for an atom type i"""
+        if i in self.ff['atom_types']:
+            return self.ff['atom_types'][i]['mass']
+
+        raise RuntimeError('no atom type data for {}'.format(i))
