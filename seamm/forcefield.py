@@ -897,12 +897,6 @@ class Forcefield(object):
                 if key is not None:
                     newdata[item] = data[item][key]
 
-    def mass(self, i):
-        """Return the atomic mass for an atom type i"""
-        if i in self.ff['atom_types']:
-            return self.ff['atom_types'][i]['mass']
-
-        raise RuntimeError('no atom type data for {}'.format(i))
 
     def charges(self, i):
         """Return the charge given an atom type i
