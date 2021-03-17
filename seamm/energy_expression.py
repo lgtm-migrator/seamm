@@ -51,9 +51,11 @@ class EnergyExpression:
 
         self.eex_atoms(self.eex, system, configuration)
 
-        logger.debug(f'    forcefield terms: {self.ff["terms"]}')
+        logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
-        for term in self.forcefield.ff['terms']:
+        import pdb
+        pdb.set_trace()
+        for term in self.atomtyping_engine.forcefield.ff['terms']:
             function_name = 'self.eex_' + term.replace('-', '_')
             function_name = function_name.replace(' ', '_')
             function_name = function_name.replace(',', '_')
@@ -66,7 +68,7 @@ class EnergyExpression:
         # Now run through the sections for the functionals forms,
         # processing each
         for fform in self.forcefield.ff['functional_forms']:
-            self.forcefield._get_parameters(fform, V)
+            self.atomtyping_engine.forcefield._get_parameters(fform, V)
 
         if logger.isEnabledFor(logging.DEBUG):
             section = 'bond_increments'
@@ -119,11 +121,12 @@ class EnergyExpression:
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
         types.extend(sys_atoms.get_column(key))
         # bonds
-        #bonds = self.topology['bonds'] = [
+        # bonds = self.topology['bonds'] = [
         #    (to_index[row['i']], to_index[row['j']])
         #    for row in sys_bonds.bonds(configuration=configuration)
         #]
 
+        bonds = self.topology['bonds'] = []
         bonds = zip(sys_bonds.get_as_dict()['i'], sys_bonds.get_as_dict()['j'])
 
         # atoms bonded to each atom i
