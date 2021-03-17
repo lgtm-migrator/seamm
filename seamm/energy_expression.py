@@ -179,8 +179,6 @@ class EnergyExpression:
         #coordinates = atoms.coordinates(
         #    configuration=configuration, fractionals=False
         #)
-        import pdb
-        pdb.set_trace()
         atoms = system.systems[0].configuration.atoms
         coordinates = atoms.coordinates
 
@@ -557,7 +555,7 @@ class EnergyExpression:
 
     def mass(self, i):
         """Return the atomic mass for an atom type i"""
-        if i in self.ff['atom_types']:
-            return self.ff['atom_types'][i]['mass']
+        if i in self.atomtyping_engine.forcefield.ff['atom_types']:
+            return self.atomtyping_engine.forcefield.ff['atom_types'][i]['mass'] 
 
         raise RuntimeError('no atom type data for {}'.format(i))
