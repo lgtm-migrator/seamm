@@ -1,5 +1,4 @@
 import logging
-
 logger = logging.getLogger(__name__)
 
 class EnergyExpression:
@@ -67,15 +66,15 @@ class EnergyExpression:
 
         # Now run through the sections for the functionals forms,
         # processing each
-        for fform in self.forcefield.ff['functional_forms']:
-            self.atomtyping_engine.forcefield._get_parameters(fform, V)
+        for fform in self.atomtyping_engine.forcefield.ff['functional_forms']:
+            self.atomtyping_engine.forcefield._get_parameters(fform, self.atomtyping_engine.forcefield.version)
 
         if logger.isEnabledFor(logging.DEBUG):
             section = 'bond_increments'
             try:
-                print(json.dumps(self.ff[section], indent=4))
+                print(json.dumps(self.atomtyping_engine.forcefield.ff[section], indent=4))
             except:  # noqa: E722
-                pprint.pprint(self.ff[section])
+                pprint.pprint(self.atomtyping_engine.forcefield.ff[section])
 
         return self.eex
 
