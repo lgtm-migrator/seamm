@@ -52,8 +52,6 @@ class EnergyExpression:
 
         logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
-        import pdb
-        pdb.set_trace()
         for term in self.atomtyping_engine.forcefield.ff['terms']:
             function_name = 'self.eex_' + term.replace('-', '_')
             function_name = function_name.replace(' ', '_')
@@ -75,8 +73,6 @@ class EnergyExpression:
                 print(json.dumps(self.atomtyping_engine.forcefield.ff[section], indent=4))
             except:  # noqa: E722
                 pprint.pprint(self.atomtyping_engine.forcefield.ff[section])
-
-        return self.eex
 
     def setup_topology(self, system, configuration=None, style=''):
         """Create the list of bonds, angle, torsion, etc. for the system
@@ -125,8 +121,7 @@ class EnergyExpression:
         #    for row in sys_bonds.bonds(configuration=configuration)
         #]
 
-        bonds = self.topology['bonds'] = []
-        bonds = zip(sys_bonds.get_as_dict()['i'], sys_bonds.get_as_dict()['j'])
+        bonds = self.topology['bonds'] = [(x, y) for x, y in zip(sys_bonds.get_as_dict()['i'], sys_bonds.get_as_dict()['j'])]
 
         # atoms bonded to each atom i
         self.topology['bonds_from_atom'] = system.system.configuration.bonded_neighbors()
