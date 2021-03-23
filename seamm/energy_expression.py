@@ -53,7 +53,7 @@ class EnergyExpression:
         logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
         for term in self.atomtyping_engine.forcefield.ff['terms']:
-            function_name = 'self.eex_' + term.replace('-', '_')
+            function_name = 'eex_' + term.replace('-', '_')
             function_name = function_name.replace(' ', '_')
             function_name = function_name.replace(',', '_')
             function = getattr(self, function_name, None)
