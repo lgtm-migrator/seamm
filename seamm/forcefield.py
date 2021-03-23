@@ -53,7 +53,7 @@ class Forcefield(object):
             self.version = packaging.version.Version(version)
 
         fforms = self.data['forcefield'][self.name]['parameters']
-        self.ff['terms'] = []
+        self.ff['terms'] = {}
         self.ff['modifiers'] = {}
         self.ff['functional_forms'] = {}
 
@@ -83,9 +83,9 @@ class Forcefield(object):
                 term = metadata[fform]['topology']['type']
 
                 if term in self.ff['terms']:
-                    self.ff['terms'].append(fform)
+                    self.ff['terms'][term].append(fform)
                 else:
-                    self.ff['terms'].append(fform)
+                    self.ff['terms'][term] = [fform]
 
             for fform in self.ff['functional_forms']:
                 self._get_parameters(fform, self.version)
