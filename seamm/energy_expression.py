@@ -570,7 +570,7 @@ class EnergyExpression:
 
         # parameter directly available
         for form in forms:
-            key, flipped = self.make_canonical('like_bond', (i, j))
+            key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (i, j))
             if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                 return ('explicit', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
@@ -578,7 +578,7 @@ class EnergyExpression:
         if 'equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
             ieq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][i]['bond']
             jeq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][j]['bond']
-            key, flipped = self.make_canonical('like_bond', (ieq, jeq))
+            key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (ieq, jeq))
             for form in forms:
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                     return ('equivalent', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
@@ -587,7 +587,7 @@ class EnergyExpression:
         if 'auto_equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
             iauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][i]['bond']
             jauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][j]['bond']
-            key, flipped = self.make_canonical('like_bond', (iauto, jauto))
+            key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (iauto, jauto))
             for form in forms:
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                     return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
@@ -625,7 +625,7 @@ class EnergyExpression:
             iauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][i]['angle_end_atom']
             jauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][j]['angle_center_atom']
             kauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][k]['angle_end_atom']
-            key, flipped = self.make_canonical(
+            key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                 'like_angle', (iauto, jauto, kauto)
             )
             for form in forms:
@@ -652,14 +652,14 @@ class EnergyExpression:
                             right.append(key[0])
                 if len(left) > 0:
                     if len(right) == 0:
-                        key, flipped = self.make_canonical(
+                        key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                             'like_angle', (left[0], jauto, kauto)
                         )
                         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                             return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
                     else:
                         if left[0] < right[0]:
-                            key, flipped = self.make_canonical(
+                            key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                                 'like_angle', (left[0], jauto, kauto)
                             )
                             if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
@@ -667,7 +667,7 @@ class EnergyExpression:
                                     'automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key]
                                 )
                         else:
-                            key, flipped = self.make_canonical(
+                            key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                                 'like_angle', (iauto, jauto, right[0])
                             )
                             if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
@@ -675,23 +675,23 @@ class EnergyExpression:
                                     'automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key]
                                 )
                 elif len(right) > 0:
-                    key, flipped = self.make_canonical(
+                    key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                         'like_angle', (iauto, jauto, right[0])
                     )
                     if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                         return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
-                key, flipped = self.make_canonical(
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                     'like_angle', ('*', jauto, kauto)
                 )
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                     return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-                key, flipped = self.make_canonical(
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                     'like_angle', (iauto, jauto, '*')
                 )
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                     return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-                key, flipped = self.make_canonical(
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                     'like_angle', ('*', jauto, '*')
                 )
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
@@ -733,7 +733,7 @@ class EnergyExpression:
             jauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][j]['torsion_center_atom']
             kauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][k]['torsion_center_atom']
             lauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][l]['torsion_end_atom']
-            key, flipped = self.make_canonical(
+            key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                 'like_torsion', (iauto, jauto, kauto, lauto)
             )
             for form in forms:
@@ -759,14 +759,14 @@ class EnergyExpression:
                             right.append(key[0])
                 if len(left) > 0:
                     if len(right) == 0:
-                        key, flipped = self.make_canonical(
+                        key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                             'like_torsion', (left[0], jauto, kauto, lauto)
                         )
                         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                             return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
                     else:
                         if left[0] < right[0]:
-                            key, flipped = self.make_canonical(
+                            key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                                 'like_torsion', (left[0], jauto, kauto, lauto)
                             )
                             if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
@@ -774,7 +774,7 @@ class EnergyExpression:
                                     'automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key]
                                 )
                         else:
-                            key, flipped = self.make_canonical(
+                            key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                                 'like_torsion',
                                 (iauto, jauto, kauto, right[0])
                             )
@@ -783,23 +783,23 @@ class EnergyExpression:
                                     'automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key]
                                 )
                 elif len(right) > 0:
-                    key, flipped = self.make_canonical(
+                    key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                         'like_torsion', (iauto, jauto, kauto, right[0])
                     )
                     if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                         return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
-                key, flipped = self.make_canonical(
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                     'like_torsion', (iauto, jauto, kauto, '*')
                 )
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                     return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-                key, flipped = self.make_canonical(
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                     'like_torsion', ('*', jauto, kauto, lauto)
                 )
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                     return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-                key, flipped = self.make_canonical(
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                     'like_torsion', ('*', jauto, kauto, '*')
                 )
                 if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
@@ -814,18 +814,18 @@ class EnergyExpression:
         """
 
         # parameter directly available
-        key, flipped = self.make_canonical('like_torsion', (i, j, k, l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_torsion', (i, j, k, l))
         if key in section:
             return (key, flipped, section[key])
 
         # try wildcards
-        key, flipped = self.make_canonical('like_torsion', ('*', j, k, l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_torsion', ('*', j, k, l))
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical('like_torsion', (i, j, k, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_torsion', (i, j, k, '*'))
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical('like_torsion', ('*', j, k, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_torsion', ('*', j, k, '*'))
         if key in section:
             return (key, flipped, section[key])
 
@@ -890,30 +890,30 @@ class EnergyExpression:
         """
 
         # parameter directly available
-        key, flipped = self.make_canonical('like_oop', (i, j, k, l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, k, l))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
         # try wildcards
-        key, flipped = self.make_canonical('like_oop', ('*', j, k, l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, k, l))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-        key, flipped = self.make_canonical('like_oop', (i, j, '*', l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, '*', l))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-        key, flipped = self.make_canonical('like_oop', (i, j, k, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, k, '*'))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-        key, flipped = self.make_canonical('like_oop', ('*', j, '*', l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, '*', l))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-        key, flipped = self.make_canonical('like_oop', ('*', j, k, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, k, '*'))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-        key, flipped = self.make_canonical('like_oop', (i, j, '*', '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, '*', '*'))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-        key, flipped = self.make_canonical('like_oop', ('*', j, '*', '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, '*', '*'))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
@@ -929,7 +929,7 @@ class EnergyExpression:
         if j is None:
             key = (i,)
         else:
-            key, flipped = self.make_canonical('like_bond', (i, j))
+            key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (i, j))
         if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
             return ('explicit', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
@@ -940,7 +940,7 @@ class EnergyExpression:
                 key = (ieq,)
             else:
                 jeq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][j]['nonbond']
-                key, flipped = self.make_canonical('like_bond', (ieq, jeq))
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (ieq, jeq))
             if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                 return ('equivalent', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
@@ -951,7 +951,7 @@ class EnergyExpression:
                 key = (iauto,)
             else:
                 jauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][j]['nonbond']
-                key, flipped = self.make_canonical('like_bond', (iauto, jauto))
+                key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (iauto, jauto))
             if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
                 return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
 
@@ -1020,18 +1020,18 @@ class EnergyExpression:
         """
 
         # parameter directly available
-        key, flipped = self.make_canonical('like_angle', (i, j, k))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle', (i, j, k))
         if key in section:
             return (key, flipped, section[key])
 
         # try wildcards
-        key, flipped = self.make_canonical('like_angle', ('*', j, k))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle', ('*', j, k))
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical('like_angle', (i, j, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle', (i, j, '*'))
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical('like_angle', ('*', j, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle', ('*', j, '*'))
         if key in section:
             return (key, flipped, section[key])
 
@@ -1233,23 +1233,23 @@ class EnergyExpression:
         """
 
         # parameter directly available
-        key, flipped = self.make_canonical('like_angle-angle', (i, j, k, l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle-angle', (i, j, k, l))
         if key in section:
             return (key, flipped, section[key])
 
         # try wildcards
-        key, flipped = self.make_canonical('like_angle-angle', ('*', j, k, l))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle-angle', ('*', j, k, l))
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical('like_angle-angle', (i, j, k, '*'))
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_angle-angle', (i, j, k, '*'))
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical(
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical(
             'like_angle-angle', ('*', j, k, '*')
         )
         if key in section:
             return (key, flipped, section[key])
-        key, flipped = self.make_canonical(
+        key, flipped = self.atomtyping_engine.forcefield.make_canonical(
             'like_angle-angle', ('*', j, '*', '*')
         )
         if key in section:
