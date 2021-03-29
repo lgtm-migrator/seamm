@@ -52,6 +52,9 @@ class EnergyExpression:
 
         logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
+        import pdb
+        pdb.set_trace()
+
         for term in self.atomtyping_engine.forcefield.ff['terms']:
             function_name = 'eex_' + term.replace('-', '_')
             function_name = function_name.replace(' ', '_')
@@ -111,10 +114,11 @@ class EnergyExpression:
         to_index = {j: i + 1 for i, j in enumerate(atom_ids)}
 
         # extend types with a blank so can use 1-based indexing
-        types = self.topology['types'] = ['']
+        import pdb
+        pdb.set_trace()
         key = f'atom_types_{self.atomtyping_engine.name}'
+        types = self.topology['types'] = sys_atoms.get_column(key)
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
-        types.extend(sys_atoms.get_column(key))
         # bonds
         # bonds = self.topology['bonds'] = [
         #    (to_index[row['i']], to_index[row['j']])
