@@ -1,4 +1,6 @@
 import logging
+import pprint
+import json
 logger = logging.getLogger(__name__)
 
 class EnergyExpression:
@@ -53,9 +55,6 @@ class EnergyExpression:
 
         logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
-        import pdb
-        pdb.set_trace()
-
         for term in self.atomtyping_engine.forcefield.ff['terms']:
             function_name = 'eex_' + term.replace('-', '_')
             function_name = function_name.replace(' ', '_')
@@ -64,7 +63,7 @@ class EnergyExpression:
             if function is None:
                 print('Function {} does not exist yet'.format(function_name))
             else:
-                function(self.eex, configuration)
+                function(self.eex)
 
         # Now run through the sections for the functionals forms,
         # processing each
@@ -115,8 +114,6 @@ class EnergyExpression:
         to_index = {j: i + 1 for i, j in enumerate(atom_ids)}
 
         # extend types with a blank so can use 1-based indexing
-        import pdb
-        pdb.set_trace()
         key = f'atomtypes_{self.atomtyping_engine.name}'
         types = self.topology['types'] = sys_atoms.get_column(key)
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
@@ -129,7 +126,7 @@ class EnergyExpression:
         bonds = self.topology['bonds'] = [(x, y) for x, y in zip(sys_bonds.get_as_dict()['i'], sys_bonds.get_as_dict()['j'])]
 
         # atoms bonded to each atom i
-        self.topology['bonds_from_atom'] = system.system.configuration.bonded_neighbors()
+        self.topology['bonds_from_atom'] = configuration.bonded_neighbors()
         bonds_from_atom = self.topology['bonds_from_atom']
 
         # angles
@@ -212,13 +209,11 @@ class EnergyExpression:
         result = eex['bonds'] = []
         parameters = eex['bond parameters'] = []
 
-        import pdb
-        pdb.set_trace()
         for i, j in bonds:
             parameters_type, real_types, form, parameter_values = \
-                self.bond_parameters(types[i], types[j])
+                self.bond_parameters(types[i-1], types[j-1])
             new_value = (
-                form, parameter_values, (types[i], types[j]), parameters_type,
+                form, parameter_values, (types[i-1], types[j-1]), parameters_type,
                 real_types
             )
             index = None
@@ -242,9 +237,9 @@ class EnergyExpression:
         parameters = eex['angle parameters'] = []
         for i, j, k in angles:
             parameters_type, real_types, form, parameter_values = \
-                self.angle_parameters(types[i], types[j], types[k])
+                self.angle_parameters(types[i-1], types[j-1], types[k-1])
             new_value = (
-                form, parameter_values, (types[i], types[j], types[k]),
+                form, parameter_values, (types[i-1], types[j-1], types[k-1]),
                 parameters_type, real_types
             )
             index = None
@@ -268,11 +263,11 @@ class EnergyExpression:
         parameters = eex['torsion parameters'] = []
         for i, j, k, l in torsions:
             parameters_type, real_types, form, parameter_values = \
-                self.torsion_parameters(types[i], types[j], types[k], types[l])
+                self.torsion_parameters(types[i-1], types[j-1], types[k-1], types[l-1])
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -295,12 +290,12 @@ class EnergyExpression:
         parameters = eex['oop parameters'] = []
         for i, j, k, l in oops:
             parameters_type, real_types, form, parameter_values = \
-                self.oop_parameters(types[i], types[j], types[k], types[l],
+                self.oop_parameters(types[i-1], types[j-1], types[k-1], types[l-1],
                                     zero=True)
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -324,9 +319,9 @@ class EnergyExpression:
         for i, j, k in angles:
             parameters_type, real_types, form, parameter_values = \
                 self.bond_bond_parameters(
-                    types[i], types[j], types[k], zero=True)
+                    types[i-1], types[j-1], types[k-1], zero=True)
             new_value = (
-                form, parameter_values, (types[i], types[j], types[k]),
+                form, parameter_values, (types[i-1], types[j-1], types[k-1]),
                 parameters_type, real_types
             )
             index = None
@@ -351,9 +346,9 @@ class EnergyExpression:
         for i, j, k in angles:
             parameters_type, real_types, form, parameter_values = \
                 self.bond_angle_parameters(
-                    types[i], types[j], types[k], zero=True)
+                    types[i-1], types[j-1], types[k-1], zero=True)
             new_value = (
-                form, parameter_values, (types[i], types[j], types[k]),
+                form, parameter_values, (types[i-1], types[j-1], types[k-1]),
                 parameters_type, real_types
             )
             index = None
@@ -378,11 +373,11 @@ class EnergyExpression:
         for i, j, k, l in torsions:
             parameters_type, real_types, form, parameter_values = \
                 self.middle_bond_torsion_3_parameters(
-                    types[i], types[j], types[k], types[l], zero=True)
+                    types[i-1], types[j-1], types[k-1], types[l-1], zero=True)
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -406,11 +401,11 @@ class EnergyExpression:
         for i, j, k, l in torsions:
             parameters_type, real_types, form, parameter_values = \
                 self.end_bond_torsion_3_parameters(
-                    types[i], types[j], types[k], types[l], zero=True)
+                    types[i-1], types[j-1], types[k-1], types[l-1], zero=True)
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -434,11 +429,11 @@ class EnergyExpression:
         for i, j, k, l in torsions:
             parameters_type, real_types, form, parameter_values = \
                 self.angle_torsion_3_parameters(
-                    types[i], types[j], types[k], types[l], zero=True)
+                    types[i-1], types[j-1], types[k-1], types[l-1], zero=True)
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -462,11 +457,11 @@ class EnergyExpression:
         for i, j, k, l in torsions:
             parameters_type, real_types, form, parameter_values = \
                 self.angle_angle_torsion_1_parameters(
-                    types[i], types[j], types[k], types[l], zero=True)
+                    types[i-1], types[j-1], types[k-1], types[l-1], zero=True)
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -480,7 +475,7 @@ class EnergyExpression:
         eex['n_angle-angle-torsion_1'] = len(result)
         eex['n_angle-angle-torsion_1_types'] = len(parameters)
 
-    def eex_1_3_bond_bond(self, eex):
+    def eex__3_bond_bond(self, eex):
         """Create the 1,3 bond-bond portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -490,11 +485,11 @@ class EnergyExpression:
         for i, j, k, l in torsions:
             parameters_type, real_types, form, parameter_values = \
                 self.bond_bond_1_3_parameters(
-                    types[i], types[j], types[k], types[l], zero=True)
+                    types[i-1], types[j-1], types[k-1], types[l-1], zero=True)
             new_value = (
                 form, parameter_values,
-                (types[i], types[j], types[k],
-                 types[l]), parameters_type, real_types
+                (types[i-1], types[j-1], types[k-1],
+                 types[l-1]), parameters_type, real_types
             )
             index = None
             for value, count in zip(parameters, range(1, len(parameters) + 1)):
@@ -522,17 +517,17 @@ class EnergyExpression:
         for i, j, k, l in oops:
             parameters_type, real_types, form, parameter_values = \
                 self.angle_angle_parameters(
-                    types[i], types[j], types[k], types[l], zero=True)
+                    types[i-1], types[j-1], types[k-1], types[l-1], zero=True)
             K1 = parameter_values['K']
             Theta10 = parameter_values['Theta10']
             Theta30 = parameter_values['Theta20']
             tmp = self.angle_angle_parameters(
-                types[k], types[j], types[i], types[l], zero=True
+                types[k-1], types[j-1], types[i-1], types[l-1], zero=True
             )[3]
             K2 = tmp['K']
             Theta20 = tmp['Theta20']
             tmp = self.angle_angle_parameters(
-                types[i], types[j], types[l], types[k], zero=True
+                types[i-1], types[j-1], types[l-1], types[k-1], zero=True
             )[3]
             K3 = tmp['K']
             new_value = (
@@ -543,7 +538,7 @@ class EnergyExpression:
                     'Theta10': Theta10,
                     'Theta20': Theta20,
                     'Theta30': Theta30
-                }, (types[i], types[j], types[k], types[l]), parameters_type,
+                }, (types[i-1], types[j-1], types[k-1], types[l-1]), parameters_type,
                 real_types
             )
             index = None
@@ -570,14 +565,13 @@ class EnergyExpression:
 
         Handle equivalences and automatic equivalences.
         """
-
         forms = self.atomtyping_engine.forcefield.ff['terms']['bond']
 
         # parameter directly available
         for form in forms:
             key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (i, j))
-            if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-                return ('explicit', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+            if key in self.atomtyping_engine.forcefield.ff[form]:
+                return ('explicit', key, form, self.atomtyping_engine.forcefield.ff[form][key])
 
         # try equivalences
         if 'equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
