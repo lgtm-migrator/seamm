@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 class EnergyExpression:
 
 
-    def __init__(self, system=None, atomtyping_engine=None, configuration=None, style=''):
+    def __init__(self, configuration=None, atomtyping_engine=None, style=''):
         """Create the energy expression for the given structure
 
         Parameters
@@ -26,13 +26,14 @@ class EnergyExpression:
 
         self.eex = {}
 
-        self.system = system
-
         self.atomtyping_engine = atomtyping_engine 
+
         self.current_forcefield = self.atomtyping_engine.name
 
         if configuration is None:
-            configuration = system.current_configuration
+            raise TypeError("A configuration must be provided to the energy expression initalization method") 
+
+        self.configuration = configuration
 
         # We will need the elements for fix shake, 1-based.
         # self.eex['elements'] = ['']
@@ -40,15 +41,15 @@ class EnergyExpression:
 
         # The periodicity & cell parameters
         # self.eex['periodicity'] = self.system.periodicity
-        self.eex['periodicity'] = self.system.system.configuration.periodicity
+        self.eex['periodicity'] = configuration.periodicity
 
         if self.eex['periodicity'] == 3:
             # self.eex['cell'] = self.system.system['cell'].cell().parameters
-            self.eex['cell'] = self.system.system.configuration.cell.parameters
+            self.eex['cell'] = configuration.cell.parameters
 
-        self.setup_topology(system, configuration, style)
+        self.setup_topology(configuration, style)
 
-        self.eex_atoms(self.eex, system, configuration)
+        self.eex_atoms(self.eex, configuration)
 
         logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
@@ -63,7 +64,7 @@ class EnergyExpression:
             if function is None:
                 print('Function {} does not exist yet'.format(function_name))
             else:
-                function(self.eex, system, configuration)
+                function(self.eex, configuration)
 
         # Now run through the sections for the functionals forms,
         # processing each
@@ -77,7 +78,7 @@ class EnergyExpression:
             except:  # noqa: E722
                 pprint.pprint(self.atomtyping_engine.forcefield.ff[section])
 
-    def setup_topology(self, system, configuration=None, style=''):
+    def setup_topology(self, configuration=None, style=''):
         """Create the list of bonds, angle, torsion, etc. for the system
 
         This topology information is held in self.topology.
@@ -99,24 +100,24 @@ class EnergyExpression:
         self.topology = {}
 
         if configuration is None:
-            configuration = system.current_configuration
+            raise Exception 
 
-        sys_atoms = system['atom']
-        sys_bonds = system['bond']
+        sys_atoms = configuration.atoms
+        sys_bonds = configuration.bonds
 
         #n_atoms = sys_atoms.n_atoms(configuration)
-        n_atoms = system.system.configuration.n_atoms
+        n_atoms = configuration.n_atoms
         self.topology['n_atoms'] = n_atoms
 
         # Need the transformation from atom ids to indices
         #atom_ids = sys_atoms.atom_ids(configuration)
-        atom_ids = system.system.configuration.atoms.ids
+        atom_ids = configuration.atoms.ids
         to_index = {j: i + 1 for i, j in enumerate(atom_ids)}
 
         # extend types with a blank so can use 1-based indexing
         import pdb
         pdb.set_trace()
-        key = f'atom_types_{self.atomtyping_engine.name}'
+        key = f'atomtypes_{self.atomtyping_engine.name}'
         types = self.topology['types'] = sys_atoms.get_column(key)
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
         # bonds
@@ -173,14 +174,14 @@ class EnergyExpression:
                     oops.append((i, m, k, l))
                     oops.append((j, m, k, l))
 
-    def eex_atoms(self, eex, system, configuration=None):
+    def eex_atoms(self, eex, configuration=None):
         """List the atoms into the energy expression"""
 
         #atoms = system['atom']
         #coordinates = atoms.coordinates(
         #    configuration=configuration, fractionals=False
         #)
-        atoms = system.systems[0].configuration.atoms
+        atoms = configuration.atoms
         coordinates = atoms.coordinates
 
         key = f'atomtypes_{self.current_forcefield}'
@@ -203,7 +204,7 @@ class EnergyExpression:
         eex['n_atoms'] = len(result)
         eex['n_atom_types'] = len(atom_types)
 
-    def eex_bond(self, eex, system, configuration=None):
+    def eex_bond(self, eex):
         """Create the bond portion of the energy expression"""
         types = self.topology['types']
         bonds = self.topology['bonds']
@@ -232,7 +233,7 @@ class EnergyExpression:
         eex['n_bonds'] = len(result)
         eex['n_bond_types'] = len(parameters)
 
-    def eex_angle(self, eex, system, configuration=None):
+    def eex_angle(self, eex):
         """Create the angle portion of the energy expression"""
         types = self.topology['types']
         angles = self.topology['angles']
@@ -258,7 +259,7 @@ class EnergyExpression:
         eex['n_angles'] = len(result)
         eex['n_angle_types'] = len(parameters)
 
-    def eex_torsion(self, eex, system, configuration=None):
+    def eex_torsion(self, eex):
         """Create the torsion portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -285,7 +286,7 @@ class EnergyExpression:
         eex['n_torsions'] = len(result)
         eex['n_torsion_types'] = len(parameters)
 
-    def eex_out_of_plane(self, eex, system, configuration=None):
+    def eex_out_of_plane(self, eex):
         """Create the out-of-plane portion of the energy expression"""
         types = self.topology['types']
         oops = self.topology['oops']
@@ -313,7 +314,7 @@ class EnergyExpression:
         eex['n_oops'] = len(result)
         eex['n_oop_types'] = len(parameters)
 
-    def eex_bond_bond(self, eex, system, configuration=None):
+    def eex_bond_bond(self, eex):
         """Create the bond-bond portion of the energy expression"""
         types = self.topology['types']
         angles = self.topology['angles']
@@ -340,7 +341,7 @@ class EnergyExpression:
         eex['n_bond-bond'] = len(result)
         eex['n_bond-bond_types'] = len(parameters)
 
-    def eex_bond_angle(self, eex, system, configuration=None):
+    def eex_bond_angle(self, eex):
         """Create the bond-angle portion of the energy expression"""
         types = self.topology['types']
         angles = self.topology['angles']
@@ -367,7 +368,7 @@ class EnergyExpression:
         eex['n_bond-angle'] = len(result)
         eex['n_bond-angle_types'] = len(parameters)
 
-    def eex_torsion_middle_bond(self, eex, system, configuration=None):
+    def eex_torsion_middle_bond(self, eex):
         """Create the middle_bond-torsion portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -395,7 +396,7 @@ class EnergyExpression:
         eex['n_middle_bond-torsion_3'] = len(result)
         eex['n_middle_bond-torsion_3_types'] = len(parameters)
 
-    def eex_torsion_end_bond(self, eex, system, configuration=None):
+    def eex_torsion_end_bond(self, eex):
         """Create the end_bond-torsion portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -423,7 +424,7 @@ class EnergyExpression:
         eex['n_end_bond-torsion_3'] = len(result)
         eex['n_end_bond-torsion_3_types'] = len(parameters)
 
-    def eex_torsion_angle(self, eex, system, configuration=None):
+    def eex_torsion_angle(self, eex):
         """Create the angle-torsion portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -451,7 +452,7 @@ class EnergyExpression:
         eex['n_angle-torsion_3'] = len(result)
         eex['n_angle-torsion_3_types'] = len(parameters)
 
-    def eex_angle_torsion_angle(self, eex, system, configuration=None):
+    def eex_angle_torsion_angle(self, eex):
         """Create the angle-angle-torsion portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -479,7 +480,7 @@ class EnergyExpression:
         eex['n_angle-angle-torsion_1'] = len(result)
         eex['n_angle-angle-torsion_1_types'] = len(parameters)
 
-    def eex_1_3_bond_bond(self, eex, system, configuration=None):
+    def eex_1_3_bond_bond(self, eex):
         """Create the 1,3 bond-bond portion of the energy expression"""
         types = self.topology['types']
         torsions = self.topology['torsions']
@@ -507,7 +508,7 @@ class EnergyExpression:
         eex['n_bond-bond_1_3'] = len(result)
         eex['n_bond-bond_1_3_types'] = len(parameters)
 
-    def eex_angle_angle(self, eex, system, configuration=None):
+    def eex_angle_angle(self, eex):
         """Create the angle-angle portion of the energy expression
 
         j is the vertex atom of the angles. For the angle-angle parameters
@@ -1578,11 +1579,11 @@ class EnergyExpression:
         return self.atomtyping_engine.forcefield.ff['terms']['templates']
 
 
-    def eex_charges(self, eex, system, configuration=None):
+    def eex_charges(self, eex):
         """Do nothing routine since charges are handled by the increments."""
         pass
 
-    def eex_increment(self, eex, system, configuration=None):
+    def eex_increment(self, eex):
         """Get the charges for the structure
 
         If they do not exists on the structure, they are created
@@ -1601,7 +1602,7 @@ class EnergyExpression:
         logger.debug('leaving eex_increment')
 
 
-    def eex_pair(self, eex, system, configuration=None):
+    def eex_pair(self, eex):
         """Create the pair (non-bond) portion of the energy expression"""
         logger.debug('In eex_pair')
         types = self.topology['types']
