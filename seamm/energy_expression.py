@@ -603,7 +603,7 @@ class EnergyExpression:
 
         for form in forms:
             # parameters directly available
-            result = self._angle_parameters_helper(i, j, k, self.atomtyping_engine.forcefield.ff['terms'][form])
+            result = self._angle_parameters_helper(i, j, k, self.atomtyping_engine.forcefield.ff[form])
             if result is not None:
                 return ('explicit', result[0], form, result[2])
 
@@ -614,7 +614,7 @@ class EnergyExpression:
             keq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][k]['angle']
             for form in forms:
                 result = self._angle_parameters_helper(
-                    ieq, jeq, keq, self.atomtyping_engine.forcefield.ff['terms'][form]
+                    ieq, jeq, keq, self.atomtyping_engine.forcefield.ff[form]
                 )
                 if result is not None:
                     return ('equivalent', result[0], form, result[2])
@@ -709,7 +709,7 @@ class EnergyExpression:
 
         # parameter directly available
         for form in forms:
-            result = self._torsion_parameters_helper(i, j, k, l, self.atomtyping_engine.forcefield.ff['terms'][form])
+            result = self._torsion_parameters_helper(i, j, k, l, self.atomtyping_engine.forcefield.ff[form])
             if result is not None:
                 return ('explicit', result[0], form, result[2])
 
@@ -721,7 +721,7 @@ class EnergyExpression:
             leq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][l]['torsion']
             for form in forms:
                 result = self._torsion_parameters_helper(
-                    ieq, jeq, keq, leq, self.atomtyping_engine.forcefield.ff['terms'][form]
+                    ieq, jeq, keq, leq, self.atomtyping_engine.forcefield.ff[form]
                 )
                 if result is not None:
                     return ('equivalent', result[0], form, result[2])
@@ -974,7 +974,7 @@ class EnergyExpression:
         values = {'R10': b1_parameters['R0'], 'R20': b2_parameters['R0']}
 
         # parameters directly available
-        result = self._angle_parameters_helper(i, j, k, self.atomtyping_engine.forcefield.ff['terms']['bond-bond'])
+        result = self._angle_parameters_helper(i, j, k, self.atomtyping_engine.forcefield.ff['bond-bond'])
         if result is not None:
             if result[1]:
                 values = {
@@ -990,7 +990,7 @@ class EnergyExpression:
             jeq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][j]['angle']
             keq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][k]['angle']
             result = self._angle_parameters_helper(
-                ieq, jeq, keq, self.atomtyping_engine.forcefield.ff['terms']['bond-bond']
+                ieq, jeq, keq, self.atomtyping_engine.forcefield.ff['bond-bond']
             )
             if result is not None:
                 if result[1]:
@@ -1050,7 +1050,7 @@ class EnergyExpression:
 
         # parameter directly available
         result = self._torsion_parameters_helper(
-            i, j, k, l, self.atomtyping_engine.forcefield.ff['terms']['bond-bond_1_3']
+            i, j, k, l, self.atomtyping_engine.forcefield.ff['bond-bond_1_3']
         )
         if result is not None:
             if result[1]:
@@ -1068,7 +1068,7 @@ class EnergyExpression:
             keq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][k]['torsion']
             leq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][l]['torsion']
             result = self._torsion_parameters_helper(
-                ieq, jeq, keq, leq, self.atomtyping_engine.forcefield.ff['terms']['bond-bond_1_3']
+                ieq, jeq, keq, leq, self.atomtyping_engine.forcefield.ff['bond-bond_1_3']
             )
             if result is not None:
                 if result[1]:
@@ -1104,7 +1104,7 @@ class EnergyExpression:
             self.bond_parameters(j, k)
 
         # parameters directly available
-        result = self._angle_parameters_helper(i, j, k, self.atomtyping_engine.forcefield.ff['terms']['bond-angle'])
+        result = self._angle_parameters_helper(i, j, k, self.atomtyping_engine.forcefield.ff['bond-angle'])
         if result is not None:
             if result[1]:
                 parameters = {
@@ -1128,7 +1128,7 @@ class EnergyExpression:
             jeq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][j]['angle']
             keq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][k]['angle']
             result = self._angle_parameters_helper(
-                ieq, jeq, keq, self.atomtyping_engine.forcefield.ff['terms']['bond-angle']
+                ieq, jeq, keq, self.atomtyping_engine.forcefield.ff['bond-angle']
             )
             if result is not None:
                 if result[1]:
