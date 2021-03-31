@@ -1601,10 +1601,16 @@ class EnergyExpression:
         logger.debug('In eex_pair')
         types = self.topology['types']
 
-        for pair_type in ('nonbond(12-6)', 'nonbond(9-6)'):
-            if pair_type in self.atomtyping_engine.forcefield.ff['terms']['functional_forms']:
-                found = True
-                break
+        found = False
+        nonbond_types = ('nonbond(12-6)', 'nonbond(9-6)') 
+
+        for k, v in self.atomtyping_engine.forcefield.ff['terms'].items():
+            for pair_type in nonbond_types:
+                if pair_type in v:
+                    found = True
+                    pair_type = v
+                    break
+
         if not found:
             raise RuntimeError('Error finding pair_type in eex_pair')
 
