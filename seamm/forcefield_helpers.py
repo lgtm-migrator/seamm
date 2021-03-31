@@ -1,4 +1,11 @@
+from enum import Enum
+from seamm_util import Q_
 
+class NonbondForms(Enum):
+     SIGMA_EPS = 'sigma-eps'
+     RMIN_EPS = 'rmin-eps'
+     A_B = 'A-B'
+     AR_BR = 'A/r-B/r'
  
 def rmin_to_sigma(rmin):
     """Convert rmin to sigma for LJ potential."""
@@ -47,21 +54,21 @@ def nonbond_transformation(
     """
     if out_form == NonbondForms.SIGMA_EPS:
         if in_form == NonbondForms.SIGMA_EPS:
-            transform = Forcefield.no_transform
+            transform = no_transform
             factor1 = Q_(1.0, in1_units).to(out1_units).magnitude
             factor2 = Q_(1.0, in2_units).to(out2_units).magnitude
         elif in_form == NonbondForms.RMIN_EPS:
-            transform = Forcefield.rmin_eps_to_sigma_eps
+            transform = rmin_eps_to_sigma_eps
             factor1 = Q_(1.0, in1_units).to(out1_units).magnitude
             factor2 = Q_(1.0, in2_units).to(out2_units).magnitude
         elif in_form == NonbondForms.A_B:
-            transform = Forcefield.a_b_to_sigma_eps
+            transform = a_b_to_sigma_eps
             A = Q_(1.0, in1_units)
             B = Q_(1.0, in2_units)
             factor1 = (A / B)**(1 / 6).to(out1_units).magnitude
             factor2 = (B**2 / (4 * A)).to(out2_units).magnitude
         elif in_form == NonbondForms.AR_BR:
-            transform = Forcefield.ar_br_to_sigma_eps
+            transform = ar_br_to_sigma_eps
             A = Q_(1.0, in1_units)**12
             B = Q_(1.0, in2_units)**6
             sigma = (A / B)**(1 / 6)
@@ -74,7 +81,7 @@ def nonbond_transformation(
             )
     elif out_form == NonbondForms.RMIN_EPS:
         if in_form == NonbondForms.RMIN_EPS:
-            transform = Forcefield.no_transform
+            transform = no_transform
             factor1 = Q_(1.0, in1_units).to(out1_units).magnitude
             factor2 = Q_(1.0, in2_units).to(out2_units).magnitude
         else:
