@@ -4,7 +4,7 @@
 
 """Main class for handling forcefields"""
 
-from enum import Enum
+from .forcefield_helpers import NonbondForms, nonbond_transformation
 import json
 import logging
 import os.path
@@ -12,7 +12,7 @@ import packaging.version
 import pprint
 from .forcefield_metadata import metadata
 import seamm_util
-from seamm_util import Q_
+
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +206,7 @@ class Forcefield(object):
                     result['priority'] = priority
 
                     # Parse the data, looking for specialized implementations
+                    
                     if 'nonbond' in section:
                         method = '_parse_biosym_nonbonds'
                     else:
@@ -745,7 +746,7 @@ class Forcefield(object):
 
         # Now that we know what we are getting as parameters (in1, in2),
         # and what we want (p1, p2), make it so!
-        transform = Forcefield.nonbond_transformation(
+        transform = nonbond_transformation(
             in_form, in1_units, in2_units, out_form, out1_units, out2_units
         )
 
