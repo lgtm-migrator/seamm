@@ -929,8 +929,8 @@ class EnergyExpression:
             key = (i,)
         else:
             key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (i, j))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return ('explicit', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return ('explicit', key, form, self.atomtyping_engine.forcefield.ff[form][key])
 
         # try equivalences
         if 'equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
@@ -1605,11 +1605,11 @@ class EnergyExpression:
         nonbond_types = ('nonbond(12-6)', 'nonbond(9-6)') 
 
         for k, v in self.atomtyping_engine.forcefield.ff['terms'].items():
-            for pair_type in nonbond_types:
-                if pair_type in v:
-                    found = True
-                    pair_type = v
-                    break
+            intersection = set(nonbond_types) & set(v) 
+            if len(intersection) > 0:
+                pair_type = intersection.pop()
+                found = True
+                break
 
         if not found:
             raise RuntimeError('Error finding pair_type in eex_pair')
