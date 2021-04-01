@@ -115,7 +115,7 @@ def rmin_eps_to_sigma_eps(rmin, eps, factor1, factor2):
     """Transform nonbond parameters from rmin-eps to sigma-eps
     and apply the unit conversion factors
     """
-    return Forcefield.rmin_to_sigma(rmin) * factor1, eps * factor2
+    return rmin_to_sigma(rmin) * factor1, eps * factor2
 
  
 def a_b_to_sigma_eps(A, B, factor1, factor2):
