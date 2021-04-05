@@ -39,6 +39,8 @@ class EnergyExpression:
         self.configuration = configuration
 
         self.eex['functional_forms'] = deepcopy(self.atomtyping_engine.forcefield.ff["terms"])
+
+        self.eex['elements'] = configuration.atoms.symbols
         # We will need the elements for fix shake, 1-based.
         # self.eex['elements'] = ['']
         # self.eex['elements'].extend(self.system['atom'].symbols(configuration))
