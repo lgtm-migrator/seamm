@@ -1,6 +1,7 @@
 import logging
 import pprint
 import json
+from copy import deepcopy
 logger = logging.getLogger(__name__)
 
 class EnergyExpression:
@@ -37,6 +38,7 @@ class EnergyExpression:
 
         self.configuration = configuration
 
+        self.eex['functional_forms'] = deepcopy(self.atomtyping_engine.forcefield.ff["terms"])
         # We will need the elements for fix shake, 1-based.
         # self.eex['elements'] = ['']
         # self.eex['elements'].extend(self.system['atom'].symbols(configuration))
