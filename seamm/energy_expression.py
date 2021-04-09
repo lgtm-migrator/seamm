@@ -118,9 +118,9 @@ class EnergyExpression:
         to_index = {j: i + 1 for i, j in enumerate(atom_ids)}
 
         # extend types with a blank so can use 1-based indexing
-        key = f'atomtypes_{self.atomtyping_engine.name}'
+        key = f'atomtypes_{self.atomtyping_engine.selected_forcefield}'
         sys_atoms_dict = sys_atoms.get_as_dict() 
-        types = self.topology['types'] = {x: y for x, y in zip(sys_atoms_dict['id'], sys_atoms_dict['atomtypes_Antechamber'])}
+        types = self.topology['types'] = {x: y for x, y in zip(sys_atoms_dict['id'], sys_atoms_dict[key])}
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
         # bonds
         # bonds = self.topology['bonds'] = [
@@ -1591,7 +1591,7 @@ class EnergyExpression:
 
         ff_name = self.name
         atoms = system['atom']
-        key = f'charges_{ff_name}'
+        key = f'charges_{self.atomtyping_engine.selected_forcefield}'
         if key in atoms:
             eex['charges'] = [*atoms[key]]
         else:
