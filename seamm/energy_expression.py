@@ -118,8 +118,8 @@ class EnergyExpression:
         to_index = {j: i + 1 for i, j in enumerate(atom_ids)}
 
         # extend types with a blank so can use 1-based indexing
-        key = f'atomtypes_{self.atomtyping_engine.forcefield.name}'
-        sys_atoms_dict = sys_atoms.get_as_dict() 
+        key = f'atomtypes_{self.atomtyping_engine.selected_forcefield}'
+        sys_atoms_dict = sys_atoms.get_as_dict()
         types = self.topology['types'] = {x: y for x, y in zip(sys_atoms_dict['id'], sys_atoms_dict[key])}
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
         # bonds
@@ -1582,7 +1582,7 @@ class EnergyExpression:
 
         logger.debug('entering eex_increment')
 
-        key = f'charges_{self.atomtyping_engine.forcefield.name}'
+        key = f'charges_{self.atomtyping_engine.selected_forcefield}'
         if key in self.configuration.atoms:
             eex['charges'] = [*self.configuration.atoms[key]]
         else:
