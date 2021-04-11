@@ -893,31 +893,31 @@ class EnergyExpression:
 
         # parameter directly available
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, k, l))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
 
         # try wildcards
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, k, l))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, '*', l))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, k, '*'))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, '*', l))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, k, '*'))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', (i, j, '*', '*'))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
         key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_oop', ('*', j, '*', '*'))
-        if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-            return (key, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+        if key in self.atomtyping_engine.forcefield.ff[form]:
+            return (key, self.atomtyping_engine.forcefield.ff[form][key])
 
         return None
 
