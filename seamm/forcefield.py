@@ -385,7 +385,6 @@ class Forcefield(object):
         """  # nopep8
         section = data['section']
         label = data['label']
-
         if section not in self.data:
             self.data[section] = {}
         if label in self.data[section]:
@@ -956,3 +955,8 @@ class Forcefield(object):
                 return ('automatic', key, 'bond_increments', parameters)
 
         raise RuntimeError('No bond increments for {}-{}'.format(i, j))
+
+    def get_templates(self):
+        """Return the templates dict
+        """
+        return self.ff['templates']
