@@ -55,7 +55,7 @@ class EnergyExpression:
 
         self.setup_topology(configuration, style)
 
-        self.eex_atoms(self.eex, configuration)
+        self.eex_atoms(self.eex)
 
         logger.debug(f'    forcefield terms: {self.atomtyping_engine.forcefield.ff["terms"]}')
 
@@ -118,7 +118,7 @@ class EnergyExpression:
         to_index = {j: i + 1 for i, j in enumerate(atom_ids)}
 
         # extend types with a blank so can use 1-based indexing
-        key = f'atomtypes_{self.atomtyping_engine.selected_forcefield}'
+        key = f'atomtypes_{self.atomtyping_engine.forcefield.name}'
         sys_atoms_dict = sys_atoms.get_as_dict() 
         types = self.topology['types'] = {x: y for x, y in zip(sys_atoms_dict['id'], sys_atoms_dict[key])}
         #types.extend(sys_atoms.get_column(key, configuration=configuration))
@@ -176,14 +176,14 @@ class EnergyExpression:
                     oops.append((i, m, k, l))
                     oops.append((j, m, k, l))
 
-    def eex_atoms(self, eex, configuration=None):
+    def eex_atoms(self, eex):
         """List the atoms into the energy expression"""
 
         #atoms = system['atom']
         #coordinates = atoms.coordinates(
         #    configuration=configuration, fractionals=False
         #)
-        atoms = configuration.atoms
+        atoms = self.configuration.atoms
         coordinates = atoms.coordinates
 
         types = self.topology['types']
@@ -570,7 +570,6 @@ class EnergyExpression:
         Handle equivalences and automatic equivalences.
         """
         forms = self.atomtyping_engine.forcefield.ff['terms']['bond']
-
         # parameter directly available
         for form in forms:
             key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (i, j))
@@ -578,23 +577,23 @@ class EnergyExpression:
                 return ('explicit', key, form, self.atomtyping_engine.forcefield.ff[form][key])
 
         # try equivalences
-        if 'equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
-            ieq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][i]['bond']
-            jeq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][j]['bond']
+        if 'equivalence' in self.atomtyping_engine.forcefield.ff:
+            ieq = self.atomtyping_engine.forcefield.ff['equivalence'][i]['bond']
+            jeq = self.atomtyping_engine.forcefield.ff['equivalence'][j]['bond']
             key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (ieq, jeq))
             for form in forms:
-                if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-                    return ('equivalent', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
+                if key in self.atomtyping_engine.forcefield.ff[form]:
+                    return ('equivalent', key, form, self.atomtyping_engine.forcefield.ff[form][key])
 
         # try automatic equivalences
-        if 'auto_equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
-            iauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][i]['bond']
-            jauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][j]['bond']
+        if 'auto_equivalence' in self.atomtyping_engine.forcefield.ff:
+            iauto = self.atomtyping_engine.forcefield.ff['auto_equivalence'][i]['bond']
+            jauto = self.atomtyping_engine.forcefield.ff['auto_equivalence'][j]['bond']
             key, flipped = self.atomtyping_engine.forcefield.make_canonical('like_bond', (iauto, jauto))
             for form in forms:
-                if key in self.atomtyping_engine.forcefield.ff['terms'][form]:
-                    return ('automatic', key, form, self.atomtyping_engine.forcefield.ff['terms'][form][key])
-
+                if key in self.atomtyping_engine.forcefield.ff[form]:
+                    return ('automatic', key, form, self.atomtyping_engine.forcefield.ff[form][key])
+        import pdb; pdb.set_trace()
         raise RuntimeError('No bond parameters for {}-{}'.format(i, j))
 
     def angle_parameters(self, i, j, k):
@@ -612,10 +611,10 @@ class EnergyExpression:
                 return ('explicit', result[0], form, result[2])
 
         # try equivalences
-        if 'equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
-            ieq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][i]['angle']
-            jeq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][j]['angle']
-            keq = self.atomtyping_engine.forcefield.ff['terms']['equivalence'][k]['angle']
+        if 'equivalence' in self.atomtyping_engine.forcefield.ff:
+            ieq = self.atomtyping_engine.forcefield.ff['equivalence'][i]['angle']
+            jeq = self.atomtyping_engine.forcefield.ff['equivalence'][j]['angle']
+            keq = self.atomtyping_engine.forcefield.ff['equivalence'][k]['angle']
             for form in forms:
                 result = self._angle_parameters_helper(
                     ieq, jeq, keq, self.atomtyping_engine.forcefield.ff[form]
@@ -624,10 +623,10 @@ class EnergyExpression:
                     return ('equivalent', result[0], form, result[2])
 
         # try automatic equivalences
-        if 'auto_equivalence' in self.atomtyping_engine.forcefield.ff['terms']:
-            iauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][i]['angle_end_atom']
-            jauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][j]['angle_center_atom']
-            kauto = self.atomtyping_engine.forcefield.ff['terms']['auto_equivalence'][k]['angle_end_atom']
+        if 'auto_equivalence' in self.atomtyping_engine.forcefield.ff:
+            iauto = self.atomtyping_engine.forcefield.ff['auto_equivalence'][i]['angle_end_atom']
+            jauto = self.atomtyping_engine.forcefield.ff['auto_equivalence'][j]['angle_center_atom']
+            kauto = self.atomtyping_engine.forcefield.ff['auto_equivalence'][k]['angle_end_atom']
             key, flipped = self.atomtyping_engine.forcefield.make_canonical(
                 'like_angle', (iauto, jauto, kauto)
             )
@@ -1571,12 +1570,6 @@ class EnergyExpression:
                 '{}-{}-{}-{}'.format(i, j, k, l)
             )
 
-    def get_templates(self):
-        """Return the templates dict
-        """
-        return self.atomtyping_engine.forcefield.ff['terms']['templates']
-
-
     def eex_charges(self, eex):
         """Do nothing routine since charges are handled by the increments."""
         pass
@@ -1589,11 +1582,9 @@ class EnergyExpression:
 
         logger.debug('entering eex_increment')
 
-        ff_name = self.name
-        atoms = system['atom']
-        key = f'charges_{self.atomtyping_engine.selected_forcefield}'
-        if key in atoms:
-            eex['charges'] = [*atoms[key]]
+        key = f'charges_{self.atomtyping_engine.forcefield.name}'
+        if key in self.configuration.atoms:
+            eex['charges'] = [*self.configuration.atoms[key]]
         else:
             raise RuntimeError('No charges on system!')
 
