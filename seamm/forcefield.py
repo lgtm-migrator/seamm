@@ -206,7 +206,6 @@ class Forcefield(object):
                     result['priority'] = priority
 
                     # Parse the data, looking for specialized implementations
-                    
                     if 'nonbond' in section:
                         method = '_parse_biosym_nonbonds'
                     else:
@@ -827,6 +826,7 @@ class Forcefield(object):
                 parameters[key][V]['terms'] = {}
 
             if V not in parameters[key]:
+                term_idx = 0
                 parameters[key][V] = {}
                 parameters[key][V]['reference'] = reference
                 parameters[key][V]['terms'] = {}
