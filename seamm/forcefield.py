@@ -809,30 +809,22 @@ class Forcefield(object):
         parameters = data['parameters'] = {}
 
         for line in data['lines']:
-            
             words = line.split()
             version, reference = words[0:2]
             symmetry = data['topology']['symmetry']
             n_atoms = data['topology']['n_atoms']
             key, flipped = self.make_canonical(symmetry, words[2:2 + n_atoms])
 
-            V = packaging.version.Version(version)
-
             if key not in parameters:
-                term_idx = 0
-                parameters[key]= {}
-                parameters[key][V] = {}
-                parameters[key][V]['reference'] = reference
-                parameters[key][V]['terms'] = {}
-
-            if V not in parameters[key]:
-                term_idx = 0
-                parameters[key][V] = {}
-                parameters[key][V]['reference'] = reference
-                parameters[key][V]['terms'] = {}
-            
+                parameters[key] = {}
+            V = packaging.version.Version(version)
+            if V in parameters[key]:
+                msg = "value for '" + "' '".join(key) + " defined more " + \
+                      "than once in section '{}'!".format(section)
+                logger.error(msg)
+                raise RuntimeError(msg)
+            params = parameters[key][V] = {'reference': reference}
             values = words[2 + n_atoms:]
-
             if 'fill' in data['topology']:
                 n = data['topology']['fill']
                 if n > 0:
@@ -844,21 +836,9 @@ class Forcefield(object):
                     first = values[0:n]
                     values = values[n:2 * n]
                     values.extend(first)
+            for constant, value in zip(data['constants'], values):
+                params[constant[0]] = value
 
-            if term_idx in parameters[key][V]['terms']:
-                msg = "value for '" + "' '".join(key) + " defined more " + \
-                      "than once in section '{}'!".format(section)
-                logger.error(msg)
-                raise RuntimeError(msg)
-
-            val_dict = {const[0]: val for const, val in zip(data['constants'], values)}
-
-            parameters[key][V]['terms'][term_idx] = val_dict
-
-            term_idx += 1
-
-        #    for constant, value in zip(data['constants'], values):
-        #        params[constant[0]] = value
         if not self.keep_lines:
             del data['lines']
 
