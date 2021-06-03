@@ -168,6 +168,42 @@ metadata = {
                     'flip': 0
                 }
         },
+    'torsion_4':
+        {
+            'equation':
+                [
+                    (
+                        'V1 * [1 + cos(n1*Phi - Phi0_1)]'
+                        ' + V2 * [1 + cos(n2*Phi - Phi0_2)]'
+                        ' + V3 * [1 + cos(n3*Phi - Phi0_3)]'
+                        ' + V4 * [1 + cos(n4*Phi - Phi0_4)]'
+                    )
+                ],
+            'constants':
+                [
+                    ('V1', 'kcal/mol'),
+                    ('n1', ''),
+                    ('Phi0_1', 'degree'),
+                    ('V2', 'kcal/mol'),
+                    ('n2', ''),
+                    ('Phi0_2', 'degree'),
+                    ('V3', 'kcal/mol'),
+                    ('n3', ''),
+                    ('Phi0_3', 'degree'),
+                    ('V4', 'kcal/mol'),
+                    ('n4', ''),
+                    ('Phi0_4', 'degree'),
+                ],
+            'topology':
+                {
+                    'type': 'torsion',
+                    'n_atoms': 4,
+                    'symmetry': 'like_torsion',
+                    'fill': 0,
+                    'flip': 0
+                }
+        },
+
     'wilson_out_of_plane':
         {
             'equation': ['K*(Chi - Chi0)^2'],
